@@ -1,0 +1,10 @@
+.editor {
+  border: 2px solid greenyellow;
+  min-height: 100px;
+  margin-bottom: 20px;
+  padding: 5px;
+}
+
+.textarea {
+  border: 2px solid greenyellow;
+}
