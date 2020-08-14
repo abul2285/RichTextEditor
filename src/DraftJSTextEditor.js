@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { EditorState, RichUtils, convertToRaw } from "draft-js";
 import Editor from "draft-js-plugins-editor";
+import clearFormatting from "./clearFormat";
 import createInlineToolbarPlugin, {
   Separator,
 } from "draft-js-inline-toolbar-plugin";
@@ -9,13 +10,11 @@ import {
   ItalicButton,
   BoldButton,
   UnderlineButton,
+  createInlineStyleButton,
   SubButton,
   SupButton,
-  createInlineStyleButton,
   UnorderedListButton,
   OrderedListButton,
-  BlockquoteButton,
-  CodeBlockButton,
 } from "draft-js-buttons";
 
 import "draft-js/dist/Draft.css";
@@ -48,6 +47,33 @@ let StrikeThroughButton = createInlineStyleButton({
   ),
 });
 
+let ClearButton = (props) => {
+  const clearFormattingValue = () => {
+    const editorState = props.getEditorState();
+    const newEditorState = clearFormatting(editorState);
+    props.setEditorState(newEditorState);
+  };
+
+  const preventMouseDown = (e) => e.preventDefault();
+  return (
+    <div
+      className="SupButton-button ToolbarButton-button"
+      style={{
+        margin: "0 0 10px 0",
+        fontSize: "24px",
+        display: "inline-block",
+        padding: "3px",
+        cursor: "default",
+        backgroundColor: "#eee",
+      }}
+      onClick={clearFormattingValue}
+      onMouseDown={(e) => preventMouseDown(e)}
+    >
+      <span>&#9986;</span>
+    </div>
+  );
+};
+
 class DraftJSTextEditor extends Component {
   constructor(props) {
     super(props);
@@ -65,22 +91,9 @@ class DraftJSTextEditor extends Component {
     this.editor.focus();
   }
 
-  handleUpdate = (editorState) => {
-    // updates state from onChange event
-    this.setState({
-      ...this.state,
-      editorState,
-    });
-  };
-
   toggleMinify = () => {
     const { minify } = this.state;
     this.setState({ minify: !minify });
-  };
-
-  handleInlineStyleUpdate = (command) => {
-    const { editorState } = this.state;
-    this.handleUpdate(RichUtils.toggleInlineStyle(editorState, command));
   };
 
   render() {
@@ -102,25 +115,21 @@ class DraftJSTextEditor extends Component {
             onTab={this.onTab}
           />
           <InlineToolbar>
-            {
-              // may be use React.Fragment instead of div to improve perfomance after React 16
-              (externalProps) => (
-                <div>
-                  <BoldButton {...externalProps} />
-                  <ItalicButton {...externalProps} />
-                  <UnderlineButton {...externalProps} />
-                  <Separator {...externalProps} />
-                  <UnorderedListButton {...externalProps} />
-                  <OrderedListButton {...externalProps} />
-                  <BlockquoteButton {...externalProps} />
-                  <SubButton {...externalProps} />
-                  <SupButton {...externalProps} />
-                  <CodeBlockButton {...externalProps} />
-                  <linkPlugin.LinkButton {...externalProps} />
-                  <StrikeThroughButton {...externalProps} />
-                </div>
-              )
-            }
+            {(externalProps) => (
+              <div>
+                <BoldButton {...externalProps} />
+                <ItalicButton {...externalProps} />
+                <UnderlineButton {...externalProps} />
+                <StrikeThroughButton {...externalProps} />
+                <Separator {...externalProps} />
+                <UnorderedListButton {...externalProps} />
+                <OrderedListButton {...externalProps} />
+                <SubButton {...externalProps} />
+                <SupButton {...externalProps} />
+                <linkPlugin.LinkButton {...externalProps} />
+                <ClearButton {...externalProps} />
+              </div>
+            )}
           </InlineToolbar>
         </div>
         <button
